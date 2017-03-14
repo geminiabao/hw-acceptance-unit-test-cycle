@@ -252,3 +252,19 @@ end
 Then /^show me the page$/ do
   save_and_open_page
 end
+
+Then /^the director of "(.*?)" should be "(.*?)"$/ do |movie, director|
+  expect_director = Movie.find_by_title(movie)[:director]
+  if expect_director.respond_to? :should
+    expect_director.should == director
+  else
+    assert_equal expect_director
+  end
+end
+
+Given(/^the following movies exist:$/) do |table|
+  # table is a Cucumber::MultilineArgument::DataTable
+  table.hashes.each do |movie|
+    Movie.create(title: movie[:title], rating: movie[:rating], director: movie[:director], release_date: movie[:release_date])
+  end
+end
