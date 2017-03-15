@@ -10,6 +10,11 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
+  def same_director
+    id = params[:id]
+    @movies = Movie.where(director: Movie.find(id).director)
+  end
+
   def index
     sort = params[:sort] || session[:sort]
     case sort
