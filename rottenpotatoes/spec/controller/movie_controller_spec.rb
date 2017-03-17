@@ -34,7 +34,18 @@ RSpec.describe MoviesController, type: :controller do
       end
       
       
+      it "isn't render the find template" do
+        expect(subject).to_not render_template :same_director
+        expect(subject).to_not render_template "same_director" 
+      end
+    
+      it "redirect to /movies when there is not same director for movies" do
+        get :same_director, id: @movies[1]
+        expect(response).to redirect_to :movies 
+      end
     end
+      
+    
     
     describe "GET #index" do
         subject { get :index }
@@ -58,48 +69,48 @@ RSpec.describe MoviesController, type: :controller do
           get :index, id: @movies, ratings: { :PG => "1" }
           response.status.should be 302 
         end
-  end  
+    end  
   
-  describe "GET #new" do
-    subject { get :new }
-    
-    it "renders the new template" do
-      expect(subject).to render_template :new
-      expect(subject).to render_template "new" 
+    describe "GET #new" do
+        subject { get :new }
+        
+        it "renders the new template" do
+          expect(subject).to render_template :new
+          expect(subject).to render_template "new" 
+        end
     end
-  end
   
-  describe "POST #create" do
-    context "with valid attributes" do
-      it "creates a new movie" do 
-        expect{ post :create, movie: @movies[0].attributes }.to change(Movie,:count).by(1) 
+    describe "POST #create" do
+      context "with valid attributes" do
+        it "creates a new movie" do 
+          expect{ post :create, movie: @movies[0].attributes }.to change(Movie,:count).by(1) 
+        end
+        
+        it "redirects to /movies after created" do
+          post :create, movie: @movies[0].attributes
+          response.should redirect_to :movies
+        end
+        
+        it "shows a notification message after created" do
+          post :create, movie: @movies[0].attributes
+          flash[:notice].should =~ /#{assigns(:movie).title} was successfully created./i
+        end
+      end
+    end
+  
+    describe "GET #edit" do
+      subject { get :edit, id: @movies[1] }
+      
+      it "assigns the requested movies[1] to @movie" do 
+        get :edit, id: @movies[1]
+        assigns(:movie).should eq @movies[1]
       end
       
-      it "redirects to /movies after created" do
-        post :create, movie: @movies[0].attributes
-        response.should redirect_to :movies
-      end
-      
-      it "shows a notification message after created" do
-        post :create, movie: @movies[0].attributes
-        flash[:notice].should =~ /#{assigns(:movie).title} was successfully created./i
+      it "renders the show template" do
+        expect(subject).to render_template :edit
+        expect(subject).to render_template "edit" 
       end
     end
-  end
-  
-  describe "GET #edit" do
-    subject { get :edit, id: @movies[1] }
-    
-    it "assigns the requested movies[1] to @movie" do 
-      get :edit, id: @movies[1]
-      assigns(:movie).should eq @movies[1]
-    end
-    
-    it "renders the show template" do
-      expect(subject).to render_template :edit
-      expect(subject).to render_template "edit" 
-    end
-  end
   
   describe "PUT #update" do
     context "valid attributes" do 
